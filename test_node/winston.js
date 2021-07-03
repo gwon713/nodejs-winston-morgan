@@ -1,11 +1,16 @@
 const winston = require('winston') ;
 const winstonDaily = require('winston-daily-rotate-file');
 
-const logDir = 'logs';  // logs 디렉토리 하위에 로그 파일 저장
 const { combine, timestamp, printf } = winston.format;
-// const url = require('./url'); // 
 
-// Define log format
+const moment = require('moment-timezone');
+const date = moment().tz('Asia/Seoul');
+const koreaTime = winston.format((info) => { // NOTE: 한국 시간으로 하기 위해.. 설정을 안 할 시 에는 UTC 0이 default다.
+    info.timestamp = date.format();
+    return info;
+});
+const logDir = 'logs';  // logs 디렉토리 하위에 로그 파일 저장
+
 const logFormat = printf(info => {
     return `${info.timestamp} ${info.level}: ${info.message}`;
 });
@@ -19,6 +24,7 @@ const logger = winston.createLogger({
         timestamp({
           format: 'YYYY-MM-DD HH:mm:ss',
         }),
+        koreaTime(),
         logFormat,
     ),
     transports: [
@@ -57,17 +63,6 @@ logger.stream = {// morgan wiston 설정
         logger.info(message);
     }
 } 
-
-/*
-logger.skip = {
-    skip: function (req, res) { 
-        if(req.url == "/ping")
-            return true;
-        if(!url.includes(req.url)){
-            return true;
-        }
-    }
-} */
 
 // Production 환경이 아닌 경우(dev 등) 배포 환경에서는 최대한 자원을 안잡아 먹는 로그를 출력해야함
 if (process.env.NODE_ENV !== 'production') {

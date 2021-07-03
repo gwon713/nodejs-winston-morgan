@@ -2,8 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node
 
 ### Node ###
-env/
-
 # Logs
 *.log
 *-audit.json
